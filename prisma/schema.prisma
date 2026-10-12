@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  renter
+  owner
+}
+
+enum ApartmentType {
+  studio
+  one_bed
+  two_bed
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+  expired
+}
+
+enum PaymentType {
+  deposit
+  rent
+}
+
+enum PaymentStatus {
+  paid
+  refunded
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  phone        String?
+  email        String        @unique
+  password     String
+  role         Role          @default(renter)
+  apartments   Apartment[]
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+}
+
+model Apartment {
+  id           Int           @id @default(autoincrement())
+  owner        User          @relation(fields: [ownerId], references: [id])
+  ownerId      Int
+  title        String
+  area         String
+  type         ApartmentType
+  beds         Int
+  baths        Int
+  sizeM2       Float
+  rentMonth    Decimal       @db.Decimal(10, 2)
+  deposit      Decimal       @db.Decimal(10, 2)
+  // MySQL has no array columns, so lists are stored as JSON arrays of strings
+  amenities    Json
+  photos       Json
+  isOpen       Boolean       @default(true)
+  rating       Float         @default(0)
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+}
+
+model Reservation {
+  id          Int               @id @default(autoincrement())
+  apartment   Apartment         @relation(fields: [apartmentId], references: [id])
+  apartmentId Int
+  renter      User              @relation(fields: [renterId], references: [id])
+  renterId    Int
+  moveIn      DateTime          @db.Date
+  // 3, 6 or 12
+  months      Int
+  status      ReservationStatus @default(pending)
+  rentMonth   Decimal           @db.Decimal(10, 2)
+  deposit     Decimal           @db.Decimal(10, 2)
+  totalDue    Decimal           @db.Decimal(10, 2)
+  payments    Payment[]
+  createdAt   DateTime          @default(now())
+  expiresAt   DateTime
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  reservation   Reservation   @relation(fields: [reservationId], references: [id])
+  reservationId Int
+  amount        Decimal       @db.Decimal(10, 2)
+  type          PaymentType
+  method        String
+  status        PaymentStatus @default(paid)
+  paidAt        DateTime      @default(now())
+}
