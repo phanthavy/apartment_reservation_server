@@ -67,6 +67,12 @@ model Apartment {
   // MySQL has no array columns, so lists are stored as JSON arrays of strings
   amenities    Json
   photos       Json
+  // utilities covered by the rent, e.g. ["Water", "Wifi"]
+  included       Json?
+  availableFrom  DateTime?
+  minStayMonths  Int           @default(1)
+  petsAllowed    Boolean       @default(false)
+  smokingAllowed Boolean       @default(false)
   isOpen       Boolean       @default(true)
   rating       Float         @default(0)
   reservations Reservation[]

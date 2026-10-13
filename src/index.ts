@@ -7,6 +7,7 @@ import paymentRouter from "./routes/payment.route";
 import reservationRouter from "./routes/reservations.route";
 import registerRouter from "./routes/register.route";
 import loginRouter from "./routes/login.route";
+import uploadRouter from "./routes/uploads.route";
 
 const app = express();
 app.use(
@@ -22,6 +23,7 @@ app.use("/api", paymentRouter);
 app.use("/api", reservationRouter);
 app.use("/api", registerRouter);
 app.use("/api", loginRouter);
+app.use("/api", uploadRouter);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () =>
